@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Notes Hub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar / Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo-container">
+                    <i class="fa-solid fa-database logo-icon"></i>
+                    <div class="logo-pulse"></div>
+                </div>
+                <div>
+                    <h1>BigQuery</h1>
+                    <p class="subtitle">Release Notes Hub</p>
+                </div>
+            </div>
+            
+            <nav class="nav-controls">
+                <button id="refresh-btn" class="btn btn-primary" title="Refresh Release Notes">
+                    <i class="fa-solid fa-arrows-rotate spinner-icon" id="refresh-icon"></i>
+                    <span>Refresh Feed</span>
+                </button>
+            </nav>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="app-main">
+            <!-- Filter & Search Panel -->
+            <section class="filter-section">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search updates, features, keywords...">
+                    <button id="clear-search" class="clear-btn" style="display: none;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div class="category-filters" id="category-filters-container">
+                    <button class="chip active" data-category="all">All Updates</button>
+                    <button class="chip" data-category="feature">
+                        <span class="dot dot-feature"></span> Features
+                    </button>
+                    <button class="chip" data-category="issue">
+                        <span class="dot dot-issue"></span> Issues
+                    </button>
+                    <button class="chip" data-category="deprecation">
+                        <span class="dot dot-deprecation"></span> Deprecations
+                    </button>
+                    <button class="chip" data-category="other">
+                        <span class="dot dot-other"></span> Others
+                    </button>
+                </div>
+            </section>
+
+            <!-- Feed Statistics -->
+            <div class="feed-info">
+                <div class="feed-stat">
+                    Showing <span id="visible-count">0</span> of <span id="total-count">0</span> release updates
+                </div>
+                <div class="selection-banner" id="selection-banner">
+                    <span class="selection-text"><i class="fa-solid fa-circle-check"></i> <span id="selected-count">0</span> update(s) selected</span>
+                    <button id="tweet-selected-btn" class="btn btn-tweet-selected">
+                        <i class="fa-brands fa-x-twitter"></i> Tweet Selected
+                    </button>
+                    <button id="clear-selection-btn" class="btn btn-link">Clear</button>
+                </div>
+            </div>
+
+            <!-- Loading & Error States -->
+            <div id="loading-state" class="state-container">
+                <div class="loader">
+                    <div class="loader-ring"></div>
+                    <div class="loader-logo"><i class="fa-solid fa-database"></i></div>
+                </div>
+                <h3>Fetching Release Notes...</h3>
+                <p>Downloading latest feed from Google Cloud...</p>
+            </div>
+
+            <div id="error-state" class="state-container" style="display: none;">
+                <div class="error-icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3>Failed to Load Feed</h3>
+                <p id="error-message">Unknown error occurred</p>
+                <button id="retry-btn" class="btn btn-outline">
+                    <i class="fa-solid fa-rotate-right"></i> Try Again
+                </button>
+            </div>
+
+            <div id="empty-state" class="state-container" style="display: none;">
+                <div class="empty-illustration">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <h3>No Release Notes Found</h3>
+                <p>Try clearing your search filters or refreshing the feed.</p>
+            </div>
+
+            <!-- Cards Container -->
+            <section class="notes-grid" id="notes-grid"></section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>BigQuery Release Notes Hub &bull; Powered by Google Cloud RSS</p>
+        </footer>
+    </div>
+
+    <!-- Tweet Composer Modal -->
+    <div class="modal-overlay" id="tweet-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fa-brands fa-x-twitter"></i> Tweet Composer</h3>
+                <button class="close-btn" id="close-modal-btn">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="tweet-preview-container">
+                    <div class="tweet-preview-header">
+                        <div class="user-avatar">BQ</div>
+                        <div class="user-info">
+                            <span class="user-name">BigQuery News</span>
+                            <span class="user-handle">@bigquery_updates</span>
+                        </div>
+                    </div>
+                    <textarea id="tweet-textarea" rows="6" maxlength="280" placeholder="What's happening?"></textarea>
+                    <div class="tweet-char-counter">
+                        <span id="char-count">0</span> / 280
+                    </div>
+                </div>
+                
+                <div class="tweet-original-source" id="tweet-original-source">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancel-tweet-btn">Cancel</button>
+                <button class="btn btn-tweet" id="post-tweet-btn">
+                    <i class="fa-brands fa-x-twitter"></i> Post on X
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
