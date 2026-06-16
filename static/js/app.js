@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tweetModal = document.getElementById('tweet-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
     const cancelTweetBtn = document.getElementById('cancel-tweet-btn');
+    const copyTweetBtn = document.getElementById('copy-tweet-btn');
     const postTweetBtn = document.getElementById('post-tweet-btn');
     const tweetTextarea = document.getElementById('tweet-textarea');
     const charCountEl = document.getElementById('char-count');
@@ -78,6 +79,40 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(twitterUrl, '_blank', 'width=550,height=420');
         closeTweetModal();
     });
+    
+    copyTweetBtn.addEventListener('click', async () => {
+        const text = tweetTextarea.value;
+        try {
+            await navigator.clipboard.writeText(text);
+            showCopyFeedback(true);
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+            try {
+                tweetTextarea.select();
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                showCopyFeedback(true);
+            } catch (fallbackErr) {
+                showCopyFeedback(false);
+            }
+        }
+    });
+
+    function showCopyFeedback(success) {
+        const originalHtml = copyTweetBtn.innerHTML;
+        if (success) {
+            copyTweetBtn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> Copied!';
+            copyTweetBtn.style.borderColor = '#10b981';
+        } else {
+            copyTweetBtn.innerHTML = '<i class="fa-solid fa-xmark" style="color: #f43f5e;"></i> Failed';
+            copyTweetBtn.style.borderColor = '#f43f5e';
+        }
+        
+        setTimeout(() => {
+            copyTweetBtn.innerHTML = originalHtml;
+            copyTweetBtn.style.borderColor = '';
+        }, 1500);
+    }
     
     // Fetch Releases from Backend
     async function fetchReleases() {
